@@ -1,0 +1,1 @@
+Get-ChildItem | Where-Object { $_.PSIsContainer } | ForEach-Object { Invoke-Expression -Command ([string]::concat("net share ",$_,"=",(Get-Location).Path,"\",$_," ""/GRANT:SENTRIC\PS_Conversions,CHANGE"" ""/GRANT:SENTRIC\PS_TechSupport,CHANGE"" ""/GRANT:AWS\hostservices,READ"""))}

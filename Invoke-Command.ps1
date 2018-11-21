@@ -1,0 +1,1 @@
+Invoke-Command -ComputerName win2016-3 -ScriptBlock { netstat -abn -p tcp | findstr 443 }

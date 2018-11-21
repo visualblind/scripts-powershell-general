@@ -1,0 +1,1 @@
+﻿Get-childitem "E:\DFS\Clients\RBOC-M3\FTPS_RBOC\Reports" -recurse | ForEach-Object -process {if (($_.attributes -band 0x100) -eq 0x100) {$_.attributes = ($_.attributes -band 0xFEFF)}}
