@@ -1,6 +1,6 @@
 ﻿Set-ExecutionPolicy 0
 Set-Location "\\server\path\to\dir" 
-$DirectoryList = "\\sserver\path\to\dir" # Build the list 
+$DirectoryList = "\\server\path\to\dir" # Build the list 
  
 $Folders = Get-ChildItem -Recurse -Force "$DirectoryList" | where{$_.PsIsContainer} | select fullname
  
