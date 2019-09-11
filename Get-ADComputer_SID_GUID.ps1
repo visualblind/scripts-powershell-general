@@ -1,1 +1,1 @@
-Get-ADComputer -Filter "Name -eq 'TSTIAVW03' -or Name -eq 'TSTISVW03'" -Properties * | select name, objectSid, ObjectGUID | ft
+Get-ADComputer -Filter "Name -eq 'SERVER1' -or Name -eq 'SERVER01'" -Properties * | select name, objectSid, ObjectGUID | ft
