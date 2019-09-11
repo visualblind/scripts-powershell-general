@@ -1,4 +1,4 @@
-﻿#Purpose: IIS Server Log Monthly Hit Counter
+#Purpose: IIS Server Log Monthly Hit Counter
 #By: Travis Runyard
 #Date: 1/8/2015
 
@@ -8,10 +8,10 @@ $LastMonthName = Get-Date -year $LastMonth.year -month $LastMonth.month -format 
 $CurrentDate = Get-Date
 $FirstDayofLastMonth = Get-Date -year $LastMonth.year -month $LastMonth.month -day 1 -format d
 $FirstDayofThisMonth = Get-Date -year $CurrentDate.year -month $CurrentDate.month -day 1 -format d
-$RemoteLogPathIIS1 = "\\si04swfiis1\logfiles"
-$RemoteLogPathIIS2 = "\\si04swfiis2\logfiles"
-$LocalLogPathIIS1 = "D:\WebserverReport\LogFiles\SI04SWFIIS1"
-$LocalLogPathIIS2 = "D:\WebserverReport\LogFiles\SI04SWFIIS2"
+$RemoteLogPathIIS1 = "\\SERVER1\logfiles"
+$RemoteLogPathIIS2 = "\\SERVER2\logfiles"
+$LocalLogPathIIS1 = "D:\WebserverReport\LogFiles\SERVER1"
+$LocalLogPathIIS2 = "D:\WebserverReport\LogFiles\SERVER2"
 
 #Create folders and delete logs if they exist
 if(!(Test-Path -Path $LocalLogPathIIS1 )){
@@ -56,19 +56,19 @@ Get-ChildItem -Path $RemoteLogPathIIS2 -Recurse | ? { $_.LastWriteTime -gt $Firs
     } -Force
 
 
-#Run the Log Parser utility and generate the server report CSV file (SI04SWFIIS1)
-&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT date, cs-uri-stem AS Page,  COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS1-svrhits.csv FROM D:\WebserverReport\LogFiles\SI04SWFIIS1\*.log WHERE (cs-uri-stem LIKE '%aspx%') GROUP BY Date,Page ORDER BY Hits DESC" -o:CSV -headers:ON -recurse
+#Run the Log Parser utility and generate the server report CSV file (SERVER1)
+&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT date, cs-uri-stem AS Page,  COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS1-svrhits.csv FROM D:\WebserverReport\LogFiles\SERVER1\*.log WHERE (cs-uri-stem LIKE '%aspx%') GROUP BY Date,Page ORDER BY Hits DESC" -o:CSV -headers:ON -recurse
 
-#Run the Log Parser utility and generate the server report CSV file (SI04SWFIIS2)
-&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT date, cs-uri-stem AS Page,  COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS2-svrhits.csv FROM D:\WebserverReport\LogFiles\SI04SWFIIS2\*.log WHERE (cs-uri-stem LIKE '%aspx%') GROUP BY Date,Page ORDER BY Hits DESC" -o:CSV -headers:ON -recurse
+#Run the Log Parser utility and generate the server report CSV file (SERVER2)
+&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT date, cs-uri-stem AS Page,  COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS2-svrhits.csv FROM D:\WebserverReport\LogFiles\SERVER2\*.log WHERE (cs-uri-stem LIKE '%aspx%') GROUP BY Date,Page ORDER BY Hits DESC" -o:CSV -headers:ON -recurse
 
-#Run the Log Parser utility and generate website hit stats for email report (SI04SWFIIS1)
-&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT cs-host AS Host, COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS1-sitehits.csv  FROM 'D:\WebserverReport\LogFiles\SI04SWFIIS1\*.log' WHERE (cs-uri-stem LIKE '%aspx%') AND cs-host IS NOT NULL GROUP BY Host ORDER BY Hits, Host DESC" -o:CSV -headers:ON -recurse
+#Run the Log Parser utility and generate website hit stats for email report (SERVER1)
+&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT cs-host AS Host, COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS1-sitehits.csv  FROM 'D:\WebserverReport\LogFiles\SERVER1\*.log' WHERE (cs-uri-stem LIKE '%aspx%') AND cs-host IS NOT NULL GROUP BY Host ORDER BY Hits, Host DESC" -o:CSV -headers:ON -recurse
 $SiteHitsIIS1 = Import-CSV D:\WebserverReport\ReportTemp\results-IIS1-sitehits.csv | Format-Table @{Expression={$_.Host};Label="Host";width=45}, `
 @{Expression={$_.Hits};Label="Hits";width=15} | Out-String
 
-#Run the Log Parser utility and generate website hit stats for email report (SI04SWFIIS2)
-&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT cs-host AS Host, COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS2-sitehits.csv  FROM 'D:\WebserverReport\LogFiles\SI04SWFIIS2\*.log' WHERE (cs-uri-stem LIKE '%aspx%') AND cs-host IS NOT NULL GROUP BY Host ORDER BY Hits, Host DESC" -o:CSV -headers:ON -recurse
+#Run the Log Parser utility and generate website hit stats for email report (SERVER2)
+&"C:\Program Files (x86)\Log Parser 2.2\LogParser.exe" --% -i:IISW3C "SELECT cs-host AS Host, COUNT(*) AS Hits INTO D:\WebserverReport\ReportTemp\results-IIS2-sitehits.csv  FROM 'D:\WebserverReport\LogFiles\SERVER2\*.log' WHERE (cs-uri-stem LIKE '%aspx%') AND cs-host IS NOT NULL GROUP BY Host ORDER BY Hits, Host DESC" -o:CSV -headers:ON -recurse
 $SiteHitsIIS2 = Import-CSV D:\WebserverReport\ReportTemp\results-IIS2-sitehits.csv | Format-Table @{Expression={$_.Host};Label="Host";width=45}, `
 @{Expression={$_.Hits};Label="Hits";width=15} | Out-String
 
@@ -96,8 +96,8 @@ $sumIIS1sep = [string]::Format('{0:N0}',$sumIIS1)
 $sumIIS2sep = [string]::Format('{0:N0}',$sumIIS2)
 
 #Send the report by email
-$body = "Report is for the month of $LastMonthName`n`nServer Report:`n`nTotal hits for SI04SWFIIS1: $sumIIS1sep `nTotal hits for SI04SWFIIS2: $sumIIS2sep`n`nSite Hits (SI04SWFIIS1):`n$SiteHitsIIS1`nSite Hits (SI04SWFIIS2):`n$SiteHitsIIS2"
-send-mailmessage -to "Netadmin <netadmin@sentric.net>" -from "Webserver Reporting <netadmin@sentric.net>" -subject "Workforce Webserver Report" -body $body -smtpserver 10.5.90.21
+$body = "Report is for the month of $LastMonthName`n`nServer Report:`n`nTotal hits for SERVER1: $sumIIS1sep `nTotal hits for SERVER2: $sumIIS2sep`n`nSite Hits (SERVER1):`n$SiteHitsIIS1`nSite Hits (SERVER2):`n$SiteHitsIIS2"
+send-mailmessage -to "helpdesk <helpdesk@company.com>" -from "Webserver Reporting <helpdesk@company.com>" -subject "Webserver Report" -body $body -smtpserver 192.168.1.100
 
 #Release variables
   $arrayHits = $NULL
