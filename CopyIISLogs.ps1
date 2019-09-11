@@ -7,10 +7,10 @@ $LastMonth = (Get-Date).AddMonths(-1)
 $CurrentDate = Get-Date
 $FirstDayofLastMonth = Get-Date -year $LastMonth.year -month $LastMonth.month -day 1 -format d
 $FirstDayofThisMonth = Get-Date -year $CurrentDate.year -month $CurrentDate.month -day 1 -format d
-$RemoteLogPathIIS1 = "\\si04swfiis1\logfiles"
-$RemoteLogPathIIS2 = "\\si04swfiis2\logfiles"
-$LocalLogPathIIS1 = "D:\WebserverReport\LogFiles\SI04SWFIIS1"
-$LocalLogPathIIS2 = "D:\WebserverReport\LogFiles\SI04SWFIIS2"
+$RemoteLogPathIIS1 = "\\server1\logfiles"
+$RemoteLogPathIIS2 = "\\server2\logfiles"
+$LocalLogPathIIS1 = "D:\WebserverReport\LogFiles\server1"
+$LocalLogPathIIS2 = "D:\WebserverReport\LogFiles\server2"
 $limit = (Get-Date).AddDays(-15)
 
 
